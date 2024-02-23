@@ -28,7 +28,37 @@ local levels = {
   },
   {
     name = 'Level 10'
-  }
+  },
+  {
+    name = 'Level 11'
+  },
+  {
+    name = 'Level 12'
+  },
+  {
+    name = 'Level 13'
+  },
+  {
+    name = 'Level 14'
+  },
+  {
+    name = 'Level 15'
+  },
+  {
+    name = 'Level 16'
+  },
+  {
+    name = 'Level 17'
+  },
+  {
+    name = 'Level 18'
+  },
+  {
+    name = 'Level 19'
+  },
+  {
+    name = 'Level 20'
+  },
 }
 
 return levels

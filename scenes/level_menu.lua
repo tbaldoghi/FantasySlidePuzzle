@@ -20,7 +20,6 @@ local levelButtons = {}
 
 local function gotoLevel(event, level)
   composer.setVariable('level', level)
-  -- composer.setVariable('levelSize', levelSize)
   composer.gotoScene("scenes.game")
 end
 
@@ -98,7 +97,7 @@ function scene:create(event)
         overFrame = 2,
         onEvent = function(event)
           handleBackButtonOnTap(event, sceneGroup)
-        end 
+        end
     }
   )
 

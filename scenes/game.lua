@@ -1,7 +1,10 @@
 local composer = require("composer")
+local widget = require( "widget" )
+
 local scene = composer.newScene()
 
 local Tile = require("classes.tile")
+local Button = require("classes.button")
 local size = composer.getVariable('levelSize')
 
 local imageSheet
@@ -10,6 +13,8 @@ local tileSize = 720 / size
 local moves = 0
 local time = 0
 local movesText = ''
+local referenceBackground
+local referenceImage
 local timeText = ''
 local gameTimer
 local isGameTimerActive = false
@@ -26,7 +31,7 @@ local tiles = {}
 -- -----------------------------------------------------------------------------------
 
 local function shuffle()
-  for index = 1, boardSize * 10, 1 do
+  for index = 1, boardSize * 12, 1 do
     for i = 1, size, 1 do
       for j = 1, size, 1 do
         if (tiles[i][j]:getIsEmpty()) then
@@ -103,6 +108,45 @@ local function startGameTimer()
 
     timer.resume(gameTimer)
   end
+end
+
+local function addReference(sceneGroup, imagePath)
+  referenceBackground = display.newImage(sceneGroup, 'assets/images/ui/reference_background.png')
+  referenceBackground.x = 510
+  referenceBackground.y = 200
+  referenceImage = display.newImage(sceneGroup, imagePath)
+  referenceImage:translate(510, 200)
+  referenceImage:scale(0.5, 0.5)
+end
+
+local function handleContinueButtonTap()
+  composer.removeScene("scenes.game")
+  composer.gotoScene("scenes.level_menu")
+end
+
+local function hideReference(sceneGroup)
+  local transitionTime = 1000
+
+  transition.fadeOut(referenceBackground, { time = transitionTime, delay = 0 })
+  transition.fadeOut(referenceImage,
+    { time = transitionTime, delay = 0, onComplete = function()
+        local congratulationsText = display.newText(sceneGroup, 'Congratulations!\nLevel completed!', 500, 125, "assets/fonts/oswald.ttf", 42)
+        congratulationsText:setFillColor(75 / 255, 61 / 255, 68 / 255)
+        congratulationsText:scale(0, 0)
+
+        local continueButton = Button:new()
+        continueButton:addButton(sceneGroup, 'Continue', 500, 300, handleContinueButtonTap)
+        continueButton:setAlpha(0)
+
+        transition.scaleBy(congratulationsText,
+          { time = transitionTime, delay = 0, xScale = 1, yScale = 1, onComplete = function()
+              transition.scaleBy(continueButton:getButton(), { time = 0, delay = 0, alpha = 1 })
+            end
+          }
+        )
+      end
+    }
+  )
 end
 
 local function handleOnTap(event)
@@ -184,6 +228,7 @@ local function handleGameOver(event, sceneGroup)
   if (isGameOver) then
     isGameTimerActive = false
     timer.pause(gameTimer)
+    hideReference(sceneGroup)
 
     for i = 1, size, 1 do
       for j = 1, size, 1 do
@@ -200,7 +245,7 @@ local function handleGameOver(event, sceneGroup)
   end
 end
 
-local function handleResetButtonTap()
+local function handleBackButtonTap()
   composer.removeScene("scenes.game")
   composer.gotoScene("scenes.level_menu")
 end
@@ -223,21 +268,17 @@ function scene:create(event)
   local background = display.newImage(sceneGroup, 'assets/images/ui/background.png')
   background.x = display.contentCenterX
   background.y = display.contentCenterY + heightOffset
-  -- local referenceText = display.newText(sceneGroup, 'Reference', 500, 50, "assets/fonts/oswald.ttf", 32)
-  -- referenceText:setFillColor(75 / 255, 61 / 255, 68 / 255)
-  local referenceBackground = display.newImage(sceneGroup, 'assets/images/ui/reference_background.png')
-  referenceBackground.x = 510
-  referenceBackground.y = 200
-  local referenceImage = display.newImage(sceneGroup, imagePath)
-  referenceImage:translate(510, 200)
-  referenceImage:scale(0.5, 0.5)
-  movesText = display.newText(sceneGroup, 'Moves: '..moves, 150, 125, "assets/fonts/oswald.ttf", 42)
+
+  addReference(sceneGroup, imagePath)
+
+  local textBackground = display.newImage(sceneGroup, 'assets/images/ui/text_background.png', 150, 142)
+  movesText = display.newText(sceneGroup, 'Moves: '..moves, 150, 100, "assets/fonts/oswald.ttf", 42)
   movesText:setFillColor(75 / 255, 61 / 255, 68 / 255)
-  timeText = display.newText(sceneGroup, 'Time: '..time.. 's', 150, 200, "assets/fonts/oswald.ttf", 42)
+  timeText = display.newText(sceneGroup, 'Time: '..time.. 's', 150, 175, "assets/fonts/oswald.ttf", 42)
   timeText:setFillColor(75 / 255, 61 / 255, 68 / 255)
-  local resetButton = display.newText(sceneGroup, "Back", 150, 275, "assets/fonts/oswald.ttf", 42)
-  resetButton:addEventListener('tap', handleResetButtonTap)
-  resetButton:setFillColor(75 / 255, 61 / 255, 68 / 255)
+  local backButton = Button:new()
+  backButton:addButton(sceneGroup, 'Back', 150, 300, handleBackButtonTap)
+
   local counter = 1
   gameTimer = timer.performWithDelay(1000, timerListener, -1)
 
@@ -274,6 +315,9 @@ function scene:create(event)
   end
 
   shuffle()
+  -- local textBackground = display.newImage(sceneGroup, 'assets/images/ui/text_background.png')
+  -- textBackground.x = display.contentCenterX
+  -- textBackground.y = textBackground.height / 2 + 12
 end
 
 -- show()

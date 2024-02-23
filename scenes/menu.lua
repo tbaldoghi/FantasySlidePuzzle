@@ -11,7 +11,7 @@ local scene = composer.newScene()
 -- -----------------------------------------------------------------------------------
 
 local function gotoChapterMenu()
-  composer.gotoScene("scenes.chapter_menu")
+  composer.gotoScene("scenes.difficulty_menu")
 end
 
 local function gotoSettings()
