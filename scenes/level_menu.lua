@@ -4,7 +4,7 @@ local scene = composer.newScene()
 
 local level_data = require("data.level_data")
 
-local pageSize = 5
+local pageSize = 6
 local currentPage = 0
 
 local levelButtons = {}
@@ -27,14 +27,38 @@ local function addLevelButtons(sceneGroup)
   local page = pageSize * currentPage
 
   for i = 1, pageSize do
+    local level = i + page
+    local x, y = 0, 0
+    local imagePath = 'assets/images/levels/level_'..level..'.png'
     local buttonGroup = display.newGroup()
-    local levelText = display.newText(buttonGroup, "Level "..i + page, display.contentCenterX - 175, 200 + 150 * i, "assets/fonts/oswald.ttf", 24)
-    local levelName = display.newText(buttonGroup, level_data[i + page]['name'], display.contentCenterX - 150, 200 + 150 * i + 35, "assets/fonts/oswald.ttf", 42)
+    local levelBackground = display.newImage(sceneGroup, 'assets/images/ui/level_background.png')
+    local levelImage = display.newImage(sceneGroup, imagePath)
 
-    levelText:setFillColor(75 / 255, 61 / 255, 68 / 255)
-    levelName:setFillColor(75 / 255, 61 / 255, 68 / 255)
+    levelImage:scale(0.35, 0.35)
 
+    local result = database:levelsSelect(level, 'easy')
+
+    -- print(result['level'])
+    -- print(result['is_playable'])
+    if result['is_playable'] == 0 then
+      levelImage.fill.effect = "filter.grayscale"
+    end
+
+    if (i % 2 == 0) then
+      x = display.contentCenterX + 150
+      y =  200 + 150 * (i - 1)
+    else
+      x = display.contentCenterX - 150
+      y =  200 + 150 * i
+    end
+
+    levelImage:translate(x, y)
+    levelBackground:translate(x, y)
+
+    buttonGroup:insert(levelBackground)
+    buttonGroup:insert(levelImage)
     sceneGroup:insert(buttonGroup)
+
     buttonGroup:addEventListener("tap",
       function(event)
         gotoLevel(event, i + page)
@@ -73,11 +97,9 @@ function scene:create(event)
 	local sceneGroup = self.view
 
 	-- Code here runs when the scene is first created but has not yet appeared on screen
-  local title = display.newText(sceneGroup, "First Chapter, Druidstone", 500, 80, "assets/fonts/oswald.ttf", 64)
+  local title = display.newText(sceneGroup, "First Chapter, Druidstone", display.contentCenterX, 100, "assets/fonts/oswald.ttf", 64)
 
   title:setFillColor(75 / 255, 61 / 255, 68 / 255)
-	title.x = display.contentCenterX
-	title.y = 200
 
   local options = {
     width = 78,
