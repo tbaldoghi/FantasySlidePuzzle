@@ -19,16 +19,22 @@ function Database:handleOnSystemEvent(event)
   end
 end
 
+function Database:selectDifficultyId(difficulty)
+  local difficulty_id
+  local sql = [[SELECT difficulty_id FROM difficulties WHERE difficulty=']]..difficulty..[[';]]
+
+  for row in self.database:nrows(sql) do
+    difficulty_id = row.difficulty_id
+  end
+
+  return difficulty_id
+end
+
 function Database:populateLevelsTable()
   for key, difficulty in pairs(difficulties) do
-    local difficulty_id
-    local sql = [[SELECT difficulty_id FROM difficulties WHERE difficulty=']]..difficulty..[[';]]
+    local difficulty_id = self:selectDifficultyId(difficulty)
 
-    for row in self.database:nrows(sql) do
-      difficulty_id = row.difficulty_id
-    end
-
-    for i = 1, 17, 1 do -- TODO
+    for i = 1, 18, 1 do -- TODO
       sql = [[INSERT INTO levels VALUES (NULL, ]]..i..[[, 0, 0, 0,]]..difficulty_id..[[);]]
 
       self.database:exec(sql)
@@ -90,19 +96,22 @@ function Database:levelsInsert(level, moves, time, is_playable)
   self.database:exec(sql)
 end
 
-function Database:levelsUpdate(level, moves, time, is_playable)
-  local sql = [[UPDATE levels SET moves=]]..moves..[[, time=]]..time..[[, is_playable=]]..is_playable..[[ WHERE level=]]..level..[[;]]
+function Database:levelsDataUpdate(level, difficulty, moves, time)
+  local difficulty_id = self:selectDifficultyId(difficulty)
+  local sql = [[UPDATE levels SET moves=]]..moves..[[, time=]]..time..[[ WHERE difficulty_id =]]..difficulty_id..[[ AND level=]]..level..[[;]]
+
+  self.database:exec(sql)
+end
+
+function Database:levelsIsPlayableUpdate(level, difficulty, is_playable)
+  local difficulty_id = self:selectDifficultyId(difficulty)
+  local sql = [[UPDATE levels SET is_playable=]]..is_playable..[[ WHERE difficulty_id =]]..difficulty_id..[[ AND level=]]..level..[[;]]
 
   self.database:exec(sql)
 end
 
 function Database:levelsSelect(level, difficulty)
-  local difficulty_id -- TODO: Remove code duplication.
-  local sql = [[SELECT difficulty_id FROM difficulties WHERE difficulty=']]..difficulty..[[';]]
-
-  for row in self.database:nrows(sql) do
-    difficulty_id = row.difficulty_id
-  end
+  local difficulty_id = self:selectDifficultyId(difficulty)
 
   local sql = [[SELECT * FROM levels WHERE level=]]..level..[[ AND difficulty_id=]]..difficulty_id..[[;]]
   local data = {}

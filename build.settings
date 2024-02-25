@@ -54,4 +54,14 @@ settings =
 		all = { "Icon.png", "Icon-*dpi.png", "Images.xcassets", },
 		android = { "LaunchScreen.storyboardc", },
 	},
+	window = {
+		defaultMode = "maximized",
+		resizable = true,
+		enableMaximizeButton = true,
+		minViewWidth = 720,
+		minViewHeight = 1280,
+		titleText = {
+			default = "Fantasy Slide Puzzle"
+		}
+	}
 }

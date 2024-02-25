@@ -1,4 +1,6 @@
 local composer = require( "composer" )
+local Button = require("classes.button")
+
 local scene = composer.newScene()
 
 -- -----------------------------------------------------------------------------------
@@ -10,9 +12,14 @@ local scene = composer.newScene()
 -- Scene event functions
 -- -----------------------------------------------------------------------------------
 
-local function gotoLevelMenu(event, difficulty)
-  composer.setVariable('levelSize', difficulty)
+local function gotoLevelMenu(event, levelSize, difficulty)
+  composer.setVariable('levelSize', levelSize)
+  composer.setVariable('difficulty', difficulty)
 	composer.gotoScene("scenes.level_menu")
+end
+
+local function handleBackButtonOnTap(event)
+  composer.gotoScene("scenes.menu")
 end
 
 -- create()
@@ -25,28 +32,29 @@ function scene:create(event)
 	title.x = display.contentCenterX
 	title.y = 200
 
-	local easyButton = display.newText(sceneGroup, "Easy", display.contentCenterX, 400, "assets/fonts/oswald.ttf", 42)
-	local normalButton = display.newText(sceneGroup, "Normal", display.contentCenterX, 500, "assets/fonts/oswald.ttf", 42)
-	local hardButton = display.newText(sceneGroup, "Hard", display.contentCenterX, 600, "assets/fonts/oswald.ttf", 42)
+  local easyButton = Button:new()
+	easyButton:addButton(sceneGroup, 'Easy', display.contentCenterX, 400,
+		function(listenerEvent)
+			gotoLevelMenu(listenerEvent, 4, 'easy')
+		end
+	)
 
-	easyButton:setFillColor(75 / 255, 61 / 255, 68 / 255)
-  easyButton:addEventListener("tap",
-    function(listenerEvent)
-      gotoLevelMenu(listenerEvent, 4)
-    end
-  )
-  normalButton:setFillColor(75 / 255, 61 / 255, 68 / 255)
-  normalButton:addEventListener("tap",
-    function(listenerEvent)
-      gotoLevelMenu(listenerEvent, 6)
-    end
-  )
-  hardButton:setFillColor(75 / 255, 61 / 255, 68 / 255)
-  hardButton:addEventListener("tap",
-    function(listenerEvent)
-      gotoLevelMenu(listenerEvent, 8)
-    end
-  )
+	local normalButton = Button:new()
+	normalButton:addButton(sceneGroup, 'Normal', display.contentCenterX, 525,
+		function(listenerEvent)
+			gotoLevelMenu(listenerEvent, 6, 'normal')
+		end
+	)
+
+	local hardButton = Button:new()
+	hardButton:addButton(sceneGroup, 'Hard', display.contentCenterX, 650,
+		function(listenerEvent)
+			gotoLevelMenu(listenerEvent, 8, 'hard')
+		end
+	)
+
+	local backButton = Button:new()
+  backButton:addButton(sceneGroup, 'Back', display.contentCenterX, display.contentHeight - 100, handleBackButtonOnTap)
 end
 
 -- show()

@@ -1,5 +1,7 @@
 local composer = require("composer")
 local widget = require("widget")
+local Button = require("classes.button")
+
 local scene = composer.newScene()
 
 local level_data = require("data.level_data")
@@ -36,20 +38,18 @@ local function addLevelButtons(sceneGroup)
 
     levelImage:scale(0.35, 0.35)
 
-    local result = database:levelsSelect(level, 'easy')
-
-    -- print(result['level'])
-    -- print(result['is_playable'])
-    if result['is_playable'] == 0 then
-      levelImage.fill.effect = "filter.grayscale"
-    end
+    local difficulty = composer.getVariable('difficulty')
+    local result = database:levelsSelect(level, difficulty)
+    local isPlayable = result['is_playable']
+    local xOffset = 150
+    local yOffset = 150
 
     if (i % 2 == 0) then
-      x = display.contentCenterX + 150
-      y =  200 + 150 * (i - 1)
+      x = display.contentCenterX + xOffset
+      y =  180 + yOffset * (i - 1)
     else
-      x = display.contentCenterX - 150
-      y =  200 + 150 * i
+      x = display.contentCenterX - xOffset
+      y =  180 + yOffset * i
     end
 
     levelImage:translate(x, y)
@@ -59,11 +59,15 @@ local function addLevelButtons(sceneGroup)
     buttonGroup:insert(levelImage)
     sceneGroup:insert(buttonGroup)
 
-    buttonGroup:addEventListener("tap",
-      function(event)
-        gotoLevel(event, i + page)
-      end
-    )
+    if isPlayable == 1 then
+      buttonGroup:addEventListener("tap",
+        function(event)
+          gotoLevel(event, i + page)
+        end
+      )
+    elseif isPlayable == 0 then
+      levelImage.fill.effect = "filter.grayscale"
+    end
 
     levelButtons[i] = buttonGroup
   end
@@ -75,21 +79,29 @@ local function removeLevelButtons()
   end
 end
 
-local function handleBackButtonOnTap(event, sceneGroup)
+local function handlePreviousButtonOnTap(event, sceneGroup)
   if (event.phase == "ended") then
-    removeLevelButtons()
-    currentPage = currentPage - 1
-    addLevelButtons(sceneGroup)
+    if (currentPage - 1 >= 0) then
+      removeLevelButtons()
+      currentPage = currentPage - 1
+      addLevelButtons(sceneGroup)
+    end
   end
 end
 
 local function handleNextButtonOnTap(event, sceneGroup)
   if (event.phase == "ended") then
-    -- TODO
-    removeLevelButtons()
-    currentPage = currentPage + 1
-    addLevelButtons(sceneGroup)
+    if (currentPage + 1 < 3) then -- TODO
+      removeLevelButtons()
+      currentPage = currentPage + 1
+      addLevelButtons(sceneGroup)
+    end
   end
+end
+
+local function handleBackButtonOnTap(event)
+  composer.removeScene("scenes.level_menu")
+  composer.gotoScene("scenes.difficulty_menu")
 end
 
 -- create()
@@ -109,16 +121,16 @@ function scene:create(event)
     sheetContentHeight = 78
   }
 
-  local backButtonSheet = graphics.newImageSheet("assets/images/ui/arrow_left.png", options)
+  local previousButtonSheet = graphics.newImageSheet("assets/images/ui/arrow_left.png", options)
   local nextButtonSheet = graphics.newImageSheet("assets/images/ui/arrow_right.png", options)
 
-  local backButton = widget.newButton(
+  local previousButton = widget.newButton(
     {
-        sheet = backButtonSheet,
+        sheet = previousButtonSheet,
         defaultFrame = 1,
         overFrame = 2,
         onEvent = function(event)
-          handleBackButtonOnTap(event, sceneGroup)
+          handlePreviousButtonOnTap(event, sceneGroup)
         end
     }
   )
@@ -134,12 +146,15 @@ function scene:create(event)
     }
   )
 
-  backButton.x = display.contentCenterX - 248
-  backButton.y = display.contentHeight - 128
+  previousButton.x = display.contentCenterX - 248
+  previousButton.y = display.contentHeight - 100
   nextButton.x = display.contentCenterX + 248
-  nextButton.y = display.contentHeight - 128
+  nextButton.y = display.contentHeight - 100
 
-  sceneGroup:insert(backButton)
+  local backButton = Button:new()
+  backButton:addButton(sceneGroup, 'Back', display.contentCenterX, display.contentHeight - 100, handleBackButtonOnTap)
+
+  sceneGroup:insert(previousButton)
   sceneGroup:insert(nextButton)
 
   addLevelButtons(sceneGroup)

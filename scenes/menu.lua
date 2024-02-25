@@ -1,4 +1,6 @@
 local composer = require("composer")
+local Button = require("classes.button")
+
 local scene = composer.newScene()
 
 -- -----------------------------------------------------------------------------------
@@ -10,11 +12,11 @@ local scene = composer.newScene()
 -- Scene event functions
 -- -----------------------------------------------------------------------------------
 
-local function gotoChapterMenu()
+local function handlePlayButtonOnTap()
   composer.gotoScene("scenes.difficulty_menu")
 end
 
-local function gotoSettings()
+local function handleSettingsButtonOnTap()
 	composer.gotoScene("scenes.settings")
 end
 
@@ -23,18 +25,16 @@ function scene:create( event )
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
   local title = display.newText(sceneGroup, "Fantasy Slide Puzzle", 500, 80, "assets/fonts/oswald.ttf", 64)
-  
+
 	title:setFillColor(75 / 255, 61 / 255, 68 / 255)
   title.x = display.contentCenterX
   title.y = 200
 
-  local playButton = display.newText(sceneGroup, "Play", display.contentCenterX, 500, "assets/fonts/oswald.ttf", 42)
-  local settingsButton = display.newText(sceneGroup, "Settings", display.contentCenterX, 600, "assets/fonts/oswald.ttf", 42)
+	local playButton = Button:new()
+  playButton:addButton(sceneGroup, 'Play', display.contentCenterX, 500, handlePlayButtonOnTap)
 
-  playButton:setFillColor(75 / 255, 61 / 255, 68 / 255)
-  playButton:addEventListener("tap", gotoChapterMenu)
-	settingsButton:setFillColor(75 / 255, 61 / 255, 68 / 255)
-	settingsButton:addEventListener("tap", gotoSettings)
+	local settingsButton = Button:new()
+  settingsButton:addButton(sceneGroup, 'Settings', display.contentCenterX, 625, handleSettingsButtonOnTap)
 end
 
 -- show()

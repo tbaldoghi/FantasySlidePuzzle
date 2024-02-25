@@ -6,12 +6,14 @@ local scene = composer.newScene()
 local Tile = require("classes.tile")
 local Button = require("classes.button")
 local size = composer.getVariable('levelSize')
+local difficulty = composer.getVariable('difficulty')
 
 local imageSheet
 local boardSize = size * size
 local tileSize = 720 / size
 local moves = 0
 local time = 0
+local level = 0
 local movesText = ''
 local referenceBackground
 local referenceImage
@@ -120,7 +122,18 @@ local function addReference(sceneGroup, imagePath)
 end
 
 local function handleContinueButtonTap()
+  database:levelsDataUpdate(level, difficulty, moves, time)
+
+  if level + 1 == 19 and difficulty == 'easy' then -- TODO
+    database:levelsIsPlayableUpdate(1, 'normal', 1)
+  elseif level + 1 == 19 and difficulty == 'normal' then
+    database:levelsIsPlayableUpdate(1, 'hard', 1)
+  else
+    database:levelsIsPlayableUpdate(level + 1, difficulty, 1)
+  end
+
   composer.removeScene("scenes.game")
+  composer.removeScene("scenes.level_menu")
   composer.gotoScene("scenes.level_menu")
 end
 
@@ -245,7 +258,7 @@ local function handleGameOver(event, sceneGroup)
   end
 end
 
-local function handleBackButtonTap()
+local function handleBackButtonTap(event)
   composer.removeScene("scenes.game")
   composer.gotoScene("scenes.level_menu")
 end
@@ -261,7 +274,7 @@ function scene:create(event)
     numFrames = size * size
   }
 
-  local level = composer.getVariable('level')
+  level = composer.getVariable('level')
   local imagePath = 'assets/images/levels/level_'..level..'.png'
   imageSheet = graphics.newImageSheet(imagePath, sheetOptions)
   local heightOffset = 172
@@ -271,13 +284,18 @@ function scene:create(event)
 
   addReference(sceneGroup, imagePath)
 
-  local textBackground = display.newImage(sceneGroup, 'assets/images/ui/text_background.png', 150, 142)
-  movesText = display.newText(sceneGroup, 'Moves: '..moves, 150, 100, "assets/fonts/oswald.ttf", 42)
+  local textBackground = display.newImage(sceneGroup, 'assets/images/ui/text_background.png', 150, 117)
+  movesText = display.newText(sceneGroup, 'Moves: '..moves, 150, 75, "assets/fonts/oswald.ttf", 42)
   movesText:setFillColor(75 / 255, 61 / 255, 68 / 255)
-  timeText = display.newText(sceneGroup, 'Time: '..time.. 's', 150, 175, "assets/fonts/oswald.ttf", 42)
+  timeText = display.newText(sceneGroup, 'Time: '..time.. 's', 150, 150, "assets/fonts/oswald.ttf", 42)
   timeText:setFillColor(75 / 255, 61 / 255, 68 / 255)
   local backButton = Button:new()
   backButton:addButton(sceneGroup, 'Back', 150, 300, handleBackButtonTap)
+
+  local result = database:levelsSelect(level, difficulty)
+
+  local bestTimeText = display.newText(sceneGroup, 'Best: '..result['moves']..' / '..result['time']..'s', 150, 215, 'assets/fonts/oswald.ttf', 28)
+  bestTimeText:setFillColor(75 / 255, 61 / 255, 68 / 255)
 
   local counter = 1
   gameTimer = timer.performWithDelay(1000, timerListener, -1)
@@ -315,9 +333,6 @@ function scene:create(event)
   end
 
   shuffle()
-  -- local textBackground = display.newImage(sceneGroup, 'assets/images/ui/text_background.png')
-  -- textBackground.x = display.contentCenterX
-  -- textBackground.y = textBackground.height / 2 + 12
 end
 
 -- show()
