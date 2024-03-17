@@ -6,7 +6,7 @@ local scene = composer.newScene()
 
 local pageSize = 6
 local pageCount = 5
-local currentPage = 0
+local currentPage = composer.getVariable('currentPage')
 
 local levelButtons = {}
 
@@ -83,6 +83,7 @@ local function handlePreviousButtonOnTap(event, sceneGroup)
     if (currentPage - 1 >= 0) then
       removeLevelButtons()
       currentPage = currentPage - 1
+      composer.setVariable('currentPage', currentPage)
       addLevelButtons(sceneGroup)
     end
   end
@@ -93,6 +94,7 @@ local function handleNextButtonOnTap(event, sceneGroup)
     if (currentPage + 1 < pageCount) then
       removeLevelButtons()
       currentPage = currentPage + 1
+      composer.setVariable('currentPage', currentPage)
       addLevelButtons(sceneGroup)
     end
   end

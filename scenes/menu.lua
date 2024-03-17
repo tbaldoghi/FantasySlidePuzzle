@@ -13,19 +13,25 @@ local scene = composer.newScene()
 -- -----------------------------------------------------------------------------------
 
 local function gotoLevelMenu(event, levelSize, difficulty)
+	admob.hide()
   composer.setVariable('levelSize', levelSize)
   composer.setVariable('difficulty', difficulty)
 	composer.gotoScene("scenes.level_menu")
 end
 
-local function handleSettingsButtonOnTap()
-	composer.gotoScene("scenes.settings")
-end
+-- local function handleSettingsButtonOnTap()
+-- 	composer.gotoScene("scenes.settings")
+-- end
 
 -- create()
 function scene:create( event )
 	local sceneGroup = self.view
 	-- Code here runs when the scene is first created but has not yet appeared on screen
+
+	if (admob.isLoaded("banner")) then
+		admob.show("banner")
+	end
+
   local title = display.newText(sceneGroup, "Fantasy Slide Puzzle", 500, 80, "assets/fonts/oswald.ttf", 64)
 
 	title:setFillColor(75 / 255, 61 / 255, 68 / 255)
@@ -33,28 +39,28 @@ function scene:create( event )
 	title.y = 200
 
   local easyButton = Button:new()
-	easyButton:addButton(sceneGroup, '4x4', display.contentCenterX, 400,
+	easyButton:addButton(sceneGroup, '4x4', display.contentCenterX, 450,
 		function(listenerEvent)
 			gotoLevelMenu(listenerEvent, 4, 'easy')
 		end
 	)
 
 	local normalButton = Button:new()
-	normalButton:addButton(sceneGroup, '6x6', display.contentCenterX, 525,
+	normalButton:addButton(sceneGroup, '6x6', display.contentCenterX, 625,
 		function(listenerEvent)
 			gotoLevelMenu(listenerEvent, 6, 'normal')
 		end
 	)
 
 	local hardButton = Button:new()
-	hardButton:addButton(sceneGroup, '8x8', display.contentCenterX, 650,
+	hardButton:addButton(sceneGroup, '8x8', display.contentCenterX, 800,
 		function(listenerEvent)
 			gotoLevelMenu(listenerEvent, 8, 'hard')
 		end
 	)
 
-	local settingsButton = Button:new()
-  settingsButton:addButton(sceneGroup, 'Settings', display.contentCenterX, 1025, handleSettingsButtonOnTap)
+	-- local settingsButton = Button:new()
+  -- settingsButton:addButton(sceneGroup, 'Settings', display.contentCenterX, 1025, handleSettingsButtonOnTap)
 end
 
 -- show()

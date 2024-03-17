@@ -21,6 +21,7 @@ local timeText = ''
 local gameTimer
 local isGameTimerActive = false
 local isGameOver = false
+local pushSound
 local tiles = {}
 
 -- -----------------------------------------------------------------------------------
@@ -33,7 +34,7 @@ local tiles = {}
 -- -----------------------------------------------------------------------------------
 
 local function shuffle()
-  for index = 1, boardSize * 12, 1 do
+  for index = 1, boardSize * 15, 1 do
     for i = 1, size, 1 do
       for j = 1, size, 1 do
         if (tiles[i][j]:getIsEmpty()) then
@@ -121,17 +122,23 @@ local function addReference(sceneGroup, imagePath)
   referenceImage:scale(0.5, 0.5)
 end
 
+local function handleAd()
+  local adCount = composer.getVariable('adCount')
+
+  if adCount == 3 then
+    composer.setVariable('adCount', 0)
+
+    if (admob.isLoaded("interstitial")) then
+      admob.show("interstitial")
+    end
+  else
+    composer.setVariable('adCount', adCount + 1)
+  end
+end
+
 local function handleContinueButtonTap()
+  handleAd()
   database:levelsDataUpdate(level, difficulty, moves, time)
-
-  -- if level + 1 == 31 and difficulty == 'easy' then -- TODO
-  --   database:levelsIsPlayableUpdate(1, 'normal', 1)
-  -- elseif level + 1 == 31 and difficulty == 'normal' then
-  --   database:levelsIsPlayableUpdate(1, 'hard', 1)
-  -- else
-  --   database:levelsIsPlayableUpdate(level + 1, difficulty, 1)
-  -- end
-
   composer.removeScene("scenes.game")
   composer.removeScene("scenes.level_menu")
   composer.gotoScene("scenes.level_menu")
@@ -170,6 +177,7 @@ local function handleOnTap(event)
     local breakLoop
 
     startGameTimer()
+    audio.play(pushSound)
 
     for i = 1, size, 1 do
       for j = 1, size, 1 do
@@ -323,7 +331,7 @@ function scene:create(event)
       local x = display.contentCenterX - tileSize / 2 - (tileSize * size / 2) + (tileSize * j)
       local y = display.contentCenterY - tileSize / 2 - (tileSize * size / 2) + (tileSize * i) + heightOffset
 
-      tile:addTile(sceneGroup, imageSheet, counter, x, y, tileSize,
+      tile:addTile(sceneGroup, imageSheet, counter, x, y, tileSize, difficulty,
         function(event)
           handleOnTap(event)
           handleGameOver(event, sceneGroup)
@@ -367,6 +375,7 @@ function scene:destroy(event)
 	local sceneGroup = self.view
 	-- Code here runs prior to the removal of scene's view
   timer.cancel(gameTimer)
+
 end
 
 -- -----------------------------------------------------------------------------------

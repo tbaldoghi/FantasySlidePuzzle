@@ -31,7 +31,7 @@ function Tile:addSprite(sceneGroup, imageSheet, counter, x, y)
   transition.fadeIn(sprite, { time = 2000, delay = 150 })
 end
 
-function Tile:addTile(sceneGroup, imageSheet, counter, x, y, tileSize, handleEvent)
+function Tile:addTile(sceneGroup, imageSheet, counter, x, y, tileSize, difficulty, handleEvent)
   self.tileGroup = display.newGroup()
   self.tileSize = tileSize
 
@@ -43,7 +43,15 @@ function Tile:addTile(sceneGroup, imageSheet, counter, x, y, tileSize, handleEve
     loopCount = 0
   }
 
-  local tileNumberOffset = self.tileSize / 3 * -1
+  local offsetMuliplier = 2.75
+
+  if difficulty == 'normal' then
+    offsetMuliplier = 3
+  elseif difficulty == 'hard' then
+    offsetMuliplier = 3.5
+  end
+
+  local tileNumberOffset = self.tileSize / offsetMuliplier * -1
   local sprite = display.newSprite(imageSheet, options)
 
   self.tileNumber = display.newText(counter, tileNumberOffset, tileNumberOffset, "assets/fonts/oswald.ttf", 32)
