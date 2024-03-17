@@ -34,13 +34,13 @@ function Database:populateLevelsTable()
   for key, difficulty in pairs(difficulties) do
     local difficulty_id = self:selectDifficultyId(difficulty)
 
-    for i = 1, 18, 1 do -- TODO
-      sql = [[INSERT INTO levels VALUES (NULL, ]]..i..[[, 0, 0, 0,]]..difficulty_id..[[);]]
+    for i = 1, 30, 1 do
+      local sql = [[INSERT INTO levels VALUES (NULL, ]]..i..[[, 0, 0, 0,]]..difficulty_id..[[);]]
 
       self.database:exec(sql)
     end
 
-    sql = [[UPDATE levels SET is_playable = 1 WHERE level = 1 AND difficulty_id = 1;]]
+    local sql = [[UPDATE levels SET is_playable = 1 WHERE level = 1;]]
 
     self.database:exec(sql)
   end

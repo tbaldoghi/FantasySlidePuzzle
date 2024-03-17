@@ -12,8 +12,10 @@ local scene = composer.newScene()
 -- Scene event functions
 -- -----------------------------------------------------------------------------------
 
-local function handlePlayButtonOnTap()
-  composer.gotoScene("scenes.difficulty_menu")
+local function gotoLevelMenu(event, levelSize, difficulty)
+  composer.setVariable('levelSize', levelSize)
+  composer.setVariable('difficulty', difficulty)
+	composer.gotoScene("scenes.level_menu")
 end
 
 local function handleSettingsButtonOnTap()
@@ -27,14 +29,32 @@ function scene:create( event )
   local title = display.newText(sceneGroup, "Fantasy Slide Puzzle", 500, 80, "assets/fonts/oswald.ttf", 64)
 
 	title:setFillColor(75 / 255, 61 / 255, 68 / 255)
-  title.x = display.contentCenterX
-  title.y = 200
+	title.x = display.contentCenterX
+	title.y = 200
 
-	local playButton = Button:new()
-  playButton:addButton(sceneGroup, 'Play', display.contentCenterX, 500, handlePlayButtonOnTap)
+  local easyButton = Button:new()
+	easyButton:addButton(sceneGroup, '4x4', display.contentCenterX, 400,
+		function(listenerEvent)
+			gotoLevelMenu(listenerEvent, 4, 'easy')
+		end
+	)
+
+	local normalButton = Button:new()
+	normalButton:addButton(sceneGroup, '6x6', display.contentCenterX, 525,
+		function(listenerEvent)
+			gotoLevelMenu(listenerEvent, 6, 'normal')
+		end
+	)
+
+	local hardButton = Button:new()
+	hardButton:addButton(sceneGroup, '8x8', display.contentCenterX, 650,
+		function(listenerEvent)
+			gotoLevelMenu(listenerEvent, 8, 'hard')
+		end
+	)
 
 	local settingsButton = Button:new()
-  settingsButton:addButton(sceneGroup, 'Settings', display.contentCenterX, 625, handleSettingsButtonOnTap)
+  settingsButton:addButton(sceneGroup, 'Settings', display.contentCenterX, 1025, handleSettingsButtonOnTap)
 end
 
 -- show()

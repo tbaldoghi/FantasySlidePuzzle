@@ -124,13 +124,13 @@ end
 local function handleContinueButtonTap()
   database:levelsDataUpdate(level, difficulty, moves, time)
 
-  if level + 1 == 19 and difficulty == 'easy' then -- TODO
-    database:levelsIsPlayableUpdate(1, 'normal', 1)
-  elseif level + 1 == 19 and difficulty == 'normal' then
-    database:levelsIsPlayableUpdate(1, 'hard', 1)
-  else
-    database:levelsIsPlayableUpdate(level + 1, difficulty, 1)
-  end
+  -- if level + 1 == 31 and difficulty == 'easy' then -- TODO
+  --   database:levelsIsPlayableUpdate(1, 'normal', 1)
+  -- elseif level + 1 == 31 and difficulty == 'normal' then
+  --   database:levelsIsPlayableUpdate(1, 'hard', 1)
+  -- else
+  --   database:levelsIsPlayableUpdate(level + 1, difficulty, 1)
+  -- end
 
   composer.removeScene("scenes.game")
   composer.removeScene("scenes.level_menu")
@@ -138,7 +138,7 @@ local function handleContinueButtonTap()
 end
 
 local function hideReference(sceneGroup)
-  local transitionTime = 1000
+  local transitionTime = 500
 
   transition.fadeOut(referenceBackground, { time = transitionTime, delay = 0 })
   transition.fadeOut(referenceImage,
@@ -148,7 +148,7 @@ local function hideReference(sceneGroup)
         congratulationsText:scale(0, 0)
 
         local continueButton = Button:new()
-        continueButton:addButton(sceneGroup, 'Continue', 500, 300, handleContinueButtonTap)
+        continueButton:addButton(sceneGroup, 'Continue', 500, 300, handleContinueButtonTap, true)
         continueButton:setAlpha(0)
 
         transition.scaleBy(congratulationsText,
@@ -290,12 +290,15 @@ function scene:create(event)
   timeText = display.newText(sceneGroup, 'Time: '..time.. 's', 150, 150, "assets/fonts/oswald.ttf", 42)
   timeText:setFillColor(75 / 255, 61 / 255, 68 / 255)
   local backButton = Button:new()
-  backButton:addButton(sceneGroup, 'Back', 150, 300, handleBackButtonTap)
+  backButton:addButton(sceneGroup, 'Back', 150, 300, handleBackButtonTap, true)
 
   local result = database:levelsSelect(level, difficulty)
+  local moves = result['moves']
 
-  local bestTimeText = display.newText(sceneGroup, 'Best: '..result['moves']..' / '..result['time']..'s', 150, 215, 'assets/fonts/oswald.ttf', 28)
-  bestTimeText:setFillColor(75 / 255, 61 / 255, 68 / 255)
+  if moves ~= 0 then
+    local bestTimeText = display.newText(sceneGroup, 'Best: '..result['moves']..' / '..result['time']..'s', 150, 215, 'assets/fonts/oswald.ttf', 28)
+    bestTimeText:setFillColor(75 / 255, 61 / 255, 68 / 255)
+  end
 
   local counter = 1
   gameTimer = timer.performWithDelay(1000, timerListener, -1)

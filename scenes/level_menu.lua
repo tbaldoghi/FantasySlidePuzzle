@@ -4,9 +4,8 @@ local Button = require("classes.button")
 
 local scene = composer.newScene()
 
-local level_data = require("data.level_data")
-
 local pageSize = 6
+local pageCount = 5
 local currentPage = 0
 
 local levelButtons = {}
@@ -91,7 +90,7 @@ end
 
 local function handleNextButtonOnTap(event, sceneGroup)
   if (event.phase == "ended") then
-    if (currentPage + 1 < 3) then -- TODO
+    if (currentPage + 1 < pageCount) then
       removeLevelButtons()
       currentPage = currentPage + 1
       addLevelButtons(sceneGroup)
@@ -101,7 +100,7 @@ end
 
 local function handleBackButtonOnTap(event)
   composer.removeScene("scenes.level_menu")
-  composer.gotoScene("scenes.difficulty_menu")
+  composer.gotoScene("scenes.menu")
 end
 
 -- create()
@@ -152,7 +151,7 @@ function scene:create(event)
   nextButton.y = display.contentHeight - 100
 
   local backButton = Button:new()
-  backButton:addButton(sceneGroup, 'Back', display.contentCenterX, display.contentHeight - 100, handleBackButtonOnTap)
+  backButton:addButton(sceneGroup, 'Back', display.contentCenterX, display.contentHeight - 100, handleBackButtonOnTap, true)
 
   sceneGroup:insert(previousButton)
   sceneGroup:insert(nextButton)
