@@ -9,14 +9,17 @@ admob = require("plugin.admob")
 local Database = require("classes.database")
 
 local function adListener(event)
-  if ( event.phase == "init" ) then
-    print(event.provider)
-    admob.load("interstitial", { adUnitId="app_id" })
-    admob.load("banner", { adUnitId="app_id" })
+  if (event.phase == "init") then
+    -- print(event.provider)
+    admob.load("interstitial", { adUnitId="***" })
+  end
+
+  if (event.phase == "closed") then
+    admob.load("interstitial", { adUnitId="***" })
   end
 end
 
-admob.init(adListener, { appId="app_id", testMode = true })
+admob.init(adListener, { appId="***", testMode = true })
 
 database = Database:new()
 database:initialize()

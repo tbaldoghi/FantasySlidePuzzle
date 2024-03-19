@@ -139,6 +139,11 @@ end
 local function handleContinueButtonTap()
   handleAd()
   database:levelsDataUpdate(level, difficulty, moves, time)
+
+  if level < 30 then
+    database:levelsIsPlayableUpdate(level + 1, difficulty, 1)
+  end
+
   composer.removeScene("scenes.game")
   composer.removeScene("scenes.level_menu")
   composer.gotoScene("scenes.level_menu")
